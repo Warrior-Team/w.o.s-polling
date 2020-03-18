@@ -59,15 +59,17 @@ export class PollingService {
             console.log(`Polling stage - Reality : ${reality.name}, to Server: ${server.name}`);
             await DbConnector.query(`INSERT INTO reality${reality.warriorReality}.statistics (server_id, request_time, duration_ms) 
                                     values (${server.id},now(),${duration} ) `);
+            let updateQuery = `update reality${reality.warriorReality}.servers SET "lastAlive"=now() AT TIME ZONE 'Asia/Jerusalem' where id = ${server.id}`;
+            await DbConnector.query(updateQuery);
         } catch (error) {
             console.error(`Error occurred - ${error}`);
         }
     }
 
     private static async handleServerDown(reality: IReality, server: IServer) {
-        let query = `SELECT "isAlive" from reality${reality.warriorReality}.servers where id = ${server.id}`;
-        let isAliveData = await DbConnector.query(query);
-        let isAlive = isAliveData.rows[0].isAlive;
+        let query = `SELECT "isAlive", to_char("lastAlive", 'HH24:MI:SS DD/MM/YYYY') as "lastAlive" from reality${reality.warriorReality}.servers where id = ${server.id}`;
+        let livenessData = await DbConnector.query(query);
+        let isAlive = livenessData.rows[0].isAlive;
         if (isAlive) {
             SocketsManager.sendMessage({
                 type: 'notification',
@@ -82,7 +84,7 @@ export class PollingService {
                 type: 'update',
                 server: server.name,
                 reality: reality,
-                data: {id: server.id, isAlive: false}
+                data: {id: server.id, isAlive: false, lastAlive: livenessData.rows[0].lastAlive}
             });
         }
     }
