@@ -5,10 +5,10 @@ export class DbConnector {
 
     static init() {
         this.pool = new Pool({
-            user: 'postgres',
-            host: 'localhost',
-            database: 'shame',
-            password: '123456789',
+            user: 'shame_usr@galileo-dbs',
+            host: 'galileo-dbs.postgres.database.azure.com',
+            database: 'shame_db',
+            password: 'vgserd3242',
             port: 5432
         })
     }

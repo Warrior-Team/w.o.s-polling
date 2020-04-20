@@ -33,7 +33,7 @@ export class PollingService {
     }
 
     static async getRealities() {
-        let realitiesData = await DbConnector.query(`SELECT * from public.realities`);
+        let realitiesData = await DbConnector.query(`SELECT * from realities.realities`);
         this.realities = realitiesData.rows;
         return this.realities;
     }
